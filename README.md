@@ -13,19 +13,19 @@ Basic usage
 -----------
 
 Ansible calls dynamic inventory scripts with either the `--list` or `--host` option, but no additional arguments. For that reason, yaosadis accepts all of its options from environment variables:
-* OS_STATE: a path to a local openstack-info.json file (default: openstack-info.json in the current direct§ory)
-* OS_ANSIBLE_INVENTORY_NAME_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate the ansible inventory name (default: `{{ uuid }}` which is the OpenStack UUID).
-* OS_ANSIBLE_GROUPS_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate a newline-delimited list of ansible groups to which the resource should belong (default: `all` which simply assigns all hosts to the `all` group)
-* OS_ANSIBLE_RESOURCE_FILTER_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource and should produce either `True` (to include the resource) or `False` (to exclude the resource). (default: `{{ type == "instance" }}` which is suitable to limit to only OpenStack instances and not other resource types.
-* OS_ANSIBLE_HOST_VARS_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource and should generate a newline-delimited list of host_var settings in the format `<host_var>=<value>`. (default: a template that will set `ansible_host` to the IP of the instance as well as setting all resource attributes prefixed with `os_` - see source code for details).
+* OPENSTACK_INFO: a path to a local openstack-info.json file (default: openstack-info.json in the current direct§ory)
+* OSI_ANSIBLE_INVENTORY_NAME_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate the ansible inventory name (default: `{{ uuid }}` which is the OpenStack UUID).
+* OSI_ANSIBLE_GROUPS_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate a newline-delimited list of ansible groups to which the resource should belong (default: `all` which simply assigns all hosts to the `all` group)
+* OSI_ANSIBLE_RESOURCE_FILTER_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource and should produce either `True` (to include the resource) or `False` (to exclude the resource). (default: `{{ type == "instance" }}` which is suitable to limit to only OpenStack instances and not other resource types.
+* OSI_ANSIBLE_HOST_VARS_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource and should generate a newline-delimited list of host_var settings in the format `<host_var>=<value>`. (default: a template that will set `ansible_host` to the IP of the instance as well as setting all resource attributes prefixed with `os_` - see source code for details).
 
-If you are happy with the defaults, and can arrange for the OS_STATE environment variable to be set to the path to the openstack-info.json file, then you can just install the yaosadis.py script in the ansible inventory directory, make sure it is executable, and that all of the python modules it depends on are installed on the machine on which you run ansible.
+If you are happy with the defaults, and can arrange for the OPENSTACK_INFO environment variable to be set to the path to the openstack-info.json file, then you can just install the yaosadis.py script in the ansible inventory directory, make sure it is executable, and that all of the python modules it depends on are installed on the machine on which you run ansible.
 
 In practice, you will most likely want to call yaosadis.py from a wrapper script (such as a bash script) that you install into the inventory directory in place of yaosadis.py itself and which sets those variables appropriately. For example, here is a simple shell script that simply invokes yaosadis.py after setting the path to the openstack-info.json file:
 ```
 #!/bin/bash
 
-export OS_STATE=/path/to/openstack-info.json
+export OPENSTACK_INFO=/path/to/openstack-info.json
 /path/to/yaosadis.py $@
 ```
 
@@ -50,14 +50,14 @@ If you had a resource with a OpenStack image of `ubuntu_16.04` then it should no
 
 Alternatively, yaosadis can assign hosts to ansible groups for you without the need for ansible's dynamic group functionality.
 
-To do this you will need to set the `OS_ANSIBLE_GROUPS_TEMPLATE` [Jinja2][jinja2] template such that it returns a newline-delimited list of groups to which a host should belong.
+To do this you will need to set the `OSI_ANSIBLE_GROUPS_TEMPLATE` [Jinja2][jinja2] template such that it returns a newline-delimited list of groups to which a host should belong.
 
 For example, to add all instances to a group named after the value of a metadata key called `ansible_group`, you could use the following wrapper script:
 
 ```
 #!/bin/bash
-export OS_ANSIBLE_GROUPS_TEMPLATE='{{ ["all", metadata.ansible_group] | join("\n") }}'
-export OS_STATE=/path/to/openstack-info.json
+export OSI_ANSIBLE_GROUPS_TEMPLATE='{{ ["all", metadata.ansible_group] | join("\n") }}'
+export OPENSTACK_INFO=/path/to/openstack-info.json
 /path/to/yaosadis.py $@
 ```
 
@@ -75,12 +75,12 @@ For example, the following (uninteresting) example would assign the foo_dict and
 
 ```
 #!/bin/bash
-export OS_ANSIBLE_HOST_VARS_TEMPLATE=$(cat <<EOF
+export OSI_ANSIBLE_HOST_VARS_TEMPLATE=$(cat <<EOF
 foo_dict={'foo': 1, 'bar': 2, 'baz': 3}
 abc123_list=['a', 'b', 'c', 1, 2, 3]
 EOF
 )
-export OS_STATE=/path/to/openstack-info.json
+export OPENSTACK_INFO=/path/to/openstack-info.json
 /path/to/yaosadis.py $@
 ```
 
