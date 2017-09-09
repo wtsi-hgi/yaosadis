@@ -13,7 +13,7 @@ Basic usage
 -----------
 
 Ansible calls dynamic inventory scripts with either the `--list` or `--host` option, but no additional arguments. For that reason, yaosadis accepts all of its options from environment variables:
-* OPENSTACK_INFO: a path to a local openstack-info.json file (default: openstack-info.json in the current direct§ory)
+* OPENSTACK_INFO: a path to a local openstack-info.json file (default: openstack-info.json in the current directory)
 * OSI_ANSIBLE_INVENTORY_NAME_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate the ansible inventory name (default: `{{ uuid }}` which is the OpenStack UUID).
 * OSI_ANSIBLE_GROUPS_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource to generate a newline-delimited list of ansible groups to which the resource should belong (default: `all` which simply assigns all hosts to the `all` group)
 * OSI_ANSIBLE_RESOURCE_FILTER_TEMPLATE: a [Jinja2][jinja2] template string that is applied to each OpenStack resource and should produce either `True` (to include the resource) or `False` (to exclude the resource). (default: `{{ type == "instance" }}` which is suitable to limit to only OpenStack instances and not other resource types.
